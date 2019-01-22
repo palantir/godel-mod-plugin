@@ -33,11 +33,6 @@ exclude:
 )
 
 func TestMod(t *testing.T) {
-	cleanup := setEnvVars(map[string]string{
-		"GO111MODULE": "on",
-	})
-	defer cleanup()
-
 	pluginPath, err := products.Bin("mod-plugin")
 	require.NoError(t, err)
 
@@ -74,6 +69,11 @@ func TestMod(t *testing.T) {
 
 	_, err = gofiles.Write(projectDir, specs)
 	require.NoError(t, err)
+
+	restoreEnvVars := setEnvVars(map[string]string{
+		"GO111MODULE": "on",
+	})
+	defer restoreEnvVars()
 
 	outputBuf := &bytes.Buffer{}
 	runPluginCleanup, err := pluginapitester.RunPlugin(pluginapitester.NewPluginProvider(pluginPath), nil, "mod", nil, projectDir, false, outputBuf)
@@ -85,12 +85,6 @@ func TestMod(t *testing.T) {
 }
 
 func TestModWithVendor(t *testing.T) {
-	cleanup := setEnvVars(map[string]string{
-		"GO111MODULE": "on",
-		"GOFLAGS":     "-mod=vendor",
-	})
-	defer cleanup()
-
 	pluginPath, err := products.Bin("mod-plugin")
 	require.NoError(t, err)
 
@@ -127,6 +121,12 @@ func TestModWithVendor(t *testing.T) {
 
 	_, err = gofiles.Write(projectDir, specs)
 	require.NoError(t, err)
+
+	restoreEnvVars := setEnvVars(map[string]string{
+		"GO111MODULE": "on",
+		"GOFLAGS":     "-mod=vendor",
+	})
+	defer restoreEnvVars()
 
 	outputBuf := &bytes.Buffer{}
 	runPluginCleanup, err := pluginapitester.RunPlugin(pluginapitester.NewPluginProvider(pluginPath), nil, "mod", nil, projectDir, false, outputBuf)
@@ -138,11 +138,6 @@ func TestModWithVendor(t *testing.T) {
 }
 
 func TestModVerifyApplyFalseFails(t *testing.T) {
-	cleanup := setEnvVars(map[string]string{
-		"GO111MODULE": "on",
-	})
-	defer cleanup()
-
 	pluginPath, err := products.Bin("mod-plugin")
 	require.NoError(t, err)
 
@@ -178,6 +173,11 @@ func TestModVerifyApplyFalseFails(t *testing.T) {
 	}
 	_, err = gofiles.Write(projectDir, specs)
 	require.NoError(t, err)
+
+	restoreEnvVars := setEnvVars(map[string]string{
+		"GO111MODULE": "on",
+	})
+	defer restoreEnvVars()
 
 	outputBuf := &bytes.Buffer{}
 	runPluginCleanup, err := pluginapitester.RunPlugin(pluginapitester.NewPluginProvider(pluginPath), nil, "mod", nil, projectDir, false, outputBuf)
@@ -206,12 +206,6 @@ func TestModVerifyApplyFalseFails(t *testing.T) {
 }
 
 func TestModVerifyApplyFalseFailsWithVendor(t *testing.T) {
-	cleanup := setEnvVars(map[string]string{
-		"GO111MODULE": "on",
-		"GOFLAGS":     "-mod=vendor",
-	})
-	defer cleanup()
-
 	pluginPath, err := products.Bin("mod-plugin")
 	require.NoError(t, err)
 
@@ -247,6 +241,12 @@ func TestModVerifyApplyFalseFailsWithVendor(t *testing.T) {
 	}
 	_, err = gofiles.Write(projectDir, specs)
 	require.NoError(t, err)
+
+	restoreEnvVars := setEnvVars(map[string]string{
+		"GO111MODULE": "on",
+		"GOFLAGS":     "-mod=vendor",
+	})
+	defer restoreEnvVars()
 
 	outputBuf := &bytes.Buffer{}
 	runPluginCleanup, err := pluginapitester.RunPlugin(pluginapitester.NewPluginProvider(pluginPath), nil, "mod", nil, projectDir, false, outputBuf)
