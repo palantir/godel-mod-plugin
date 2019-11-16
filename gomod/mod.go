@@ -15,7 +15,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/palantir/godel/pkg/dirchecksum"
+	"github.com/palantir/godel/v2/pkg/dirchecksum"
 	"github.com/pkg/errors"
 )
 

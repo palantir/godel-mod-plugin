@@ -15,8 +15,8 @@ import (
 
 	"github.com/nmiyake/pkg/dirs"
 	"github.com/nmiyake/pkg/gofiles"
-	"github.com/palantir/godel/framework/pluginapitester"
-	"github.com/palantir/godel/pkg/products/v2/products"
+	"github.com/palantir/godel/v2/framework/pluginapitester"
+	"github.com/palantir/godel/v2/pkg/products"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -33,6 +33,12 @@ exclude:
 )
 
 func TestMod(t *testing.T) {
+	restoreEnvVars := setEnvVars(map[string]string{
+		"GO111MODULE": "",
+		"GOFLAGS":     "",
+	})
+	defer restoreEnvVars()
+
 	pluginPath, err := products.Bin("mod-plugin")
 	require.NoError(t, err)
 
@@ -70,7 +76,7 @@ func TestMod(t *testing.T) {
 	_, err = gofiles.Write(projectDir, specs)
 	require.NoError(t, err)
 
-	restoreEnvVars := setEnvVars(map[string]string{
+	restoreEnvVars = setEnvVars(map[string]string{
 		"GO111MODULE": "on",
 	})
 	defer restoreEnvVars()
@@ -85,6 +91,12 @@ func TestMod(t *testing.T) {
 }
 
 func TestModWithVendor(t *testing.T) {
+	restoreEnvVars := setEnvVars(map[string]string{
+		"GO111MODULE": "",
+		"GOFLAGS":     "",
+	})
+	defer restoreEnvVars()
+
 	pluginPath, err := products.Bin("mod-plugin")
 	require.NoError(t, err)
 
@@ -122,7 +134,7 @@ func TestModWithVendor(t *testing.T) {
 	_, err = gofiles.Write(projectDir, specs)
 	require.NoError(t, err)
 
-	restoreEnvVars := setEnvVars(map[string]string{
+	restoreEnvVars = setEnvVars(map[string]string{
 		"GO111MODULE": "on",
 		"GOFLAGS":     "-mod=vendor",
 	})
@@ -138,6 +150,12 @@ func TestModWithVendor(t *testing.T) {
 }
 
 func TestModVerifyApplyFalseFails(t *testing.T) {
+	restoreEnvVars := setEnvVars(map[string]string{
+		"GO111MODULE": "",
+		"GOFLAGS":     "",
+	})
+	defer restoreEnvVars()
+
 	pluginPath, err := products.Bin("mod-plugin")
 	require.NoError(t, err)
 
@@ -174,7 +192,7 @@ func TestModVerifyApplyFalseFails(t *testing.T) {
 	_, err = gofiles.Write(projectDir, specs)
 	require.NoError(t, err)
 
-	restoreEnvVars := setEnvVars(map[string]string{
+	restoreEnvVars = setEnvVars(map[string]string{
 		"GO111MODULE": "on",
 	})
 	defer restoreEnvVars()
@@ -206,6 +224,12 @@ func TestModVerifyApplyFalseFails(t *testing.T) {
 }
 
 func TestModVerifyApplyFalseFailsWithVendor(t *testing.T) {
+	restoreEnvVars := setEnvVars(map[string]string{
+		"GO111MODULE": "",
+		"GOFLAGS":     "",
+	})
+	defer restoreEnvVars()
+
 	pluginPath, err := products.Bin("mod-plugin")
 	require.NoError(t, err)
 
@@ -242,7 +266,7 @@ func TestModVerifyApplyFalseFailsWithVendor(t *testing.T) {
 	_, err = gofiles.Write(projectDir, specs)
 	require.NoError(t, err)
 
-	restoreEnvVars := setEnvVars(map[string]string{
+	restoreEnvVars = setEnvVars(map[string]string{
 		"GO111MODULE": "on",
 		"GOFLAGS":     "-mod=vendor",
 	})

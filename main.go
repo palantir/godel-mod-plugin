@@ -8,7 +8,7 @@ import (
 	"os"
 
 	"github.com/palantir/godel-mod-plugin/cmd"
-	"github.com/palantir/godel/framework/pluginapi/v2/pluginapi"
+	"github.com/palantir/godel/v2/framework/pluginapi/v2/pluginapi"
 )
 
 func main() {
