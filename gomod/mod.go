@@ -50,25 +50,46 @@ func Run(projectDir string, verify bool, stdout io.Writer) error {
 	}
 
 	vendorDirPath := path.Join(projectDir, "vendor")
+	vendorDirExistsBefore := true
 	var vendorChecksumBefore dirchecksum.ChecksumSet
 	if verify {
-		var err error
-		vendorChecksumBefore, err = dirchecksum.ChecksumsForMatchingPaths(vendorDirPath, nil)
-		if err != nil {
-			return errors.Wrapf(err, "failed to compute checksums for %s", vendorDirPath)
+		if _, err := os.Stat(vendorDirPath); os.IsNotExist(err) {
+			vendorDirExistsBefore = false
+		} else {
+			var err error
+			vendorChecksumBefore, err = dirchecksum.ChecksumsForMatchingPaths(vendorDirPath, nil)
+			if err != nil {
+				return errors.Wrapf(err, "failed to compute checksums for %s", vendorDirPath)
+			}
 		}
 	}
 	if err := run(stdout, "vendor"); err != nil {
 		return err
 	}
 	if verify {
-		vendorChecksumsAfter, err := dirchecksum.ChecksumsForMatchingPaths(vendorDirPath, nil)
-		if err != nil {
-			return errors.Wrapf(err, "failed to compute checksums for %s", vendorDirPath)
+		vendorDirExistsAfter := true
+		if _, err := os.Stat(vendorDirPath); os.IsNotExist(err) {
+			vendorDirExistsAfter = false
 		}
-		checksumDiff := vendorChecksumBefore.Diff(vendorChecksumsAfter)
-		if len(checksumDiff.Diffs) > 0 {
-			return errors.Errorf("vendor directory modified:\n%s", checksumDiff.String())
+
+		if vendorDirExistsBefore != vendorDirExistsAfter {
+			if vendorDirExistsBefore {
+				return errors.Errorf("vendor directory existed before verify but did not exist after")
+			}
+			return errors.Errorf("vendor directory did not exist before verify but exists after")
+		}
+
+		// only compare checksums if vendor directory exists before and after (other case is that vendor directory
+		// didn't exist before or after, in which case they are equal)
+		if vendorDirExistsBefore && vendorDirExistsAfter {
+			vendorChecksumsAfter, err := dirchecksum.ChecksumsForMatchingPaths(vendorDirPath, nil)
+			if err != nil {
+				return errors.Wrapf(err, "failed to compute checksums for %s", vendorDirPath)
+			}
+			checksumDiff := vendorChecksumBefore.Diff(vendorChecksumsAfter)
+			if len(checksumDiff.Diffs) > 0 {
+				return errors.Errorf("vendor directory modified:\n%s", checksumDiff.String())
+			}
 		}
 	}
 	return nil
