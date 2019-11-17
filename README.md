@@ -2,10 +2,10 @@
 <a href="https://autorelease.general.dmz.palantir.tech/palantir/godel-mod-plugin"><img src="https://img.shields.io/badge/Perform%20an-Autorelease-success.svg" alt="Autorelease"></a>
 </p>
 
-mod-plugin
-==========
-`mod-plugin` is a [godel](https://github.com/palantir/godel) plugin that helps to standardize and verify the Go module
-state for a project.
+godel-mod-plugin
+================
+`godel-mod-plugin` is a [godel](https://github.com/palantir/godel) plugin that helps to standardize and verify the Go
+module state for a project.
 
 The task runs `go mod tidy` to standardize all of the module dependencies for a project. If the `GOFLAGS` environment
 variable contains the value `-mod=vendor`, then this task will run `go mod vendor` after running `go mod tidy` to ensure
