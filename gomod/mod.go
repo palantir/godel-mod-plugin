@@ -79,7 +79,12 @@ func goModChecksums(projectDir string) (goModChecksum, goSumChecksum [32]byte, e
 	if err != nil {
 		return goModChecksum, goSumChecksum, err
 	}
-	goSumChecksum, err = fileChecksum(path.Join(projectDir, "go.sum"))
+	goSumPath := path.Join(projectDir, "go.sum")
+	if _, err := os.Stat(goSumPath); os.IsNotExist(err) {
+		// if go.sum file does not exist, return default value for checksum of go.sum
+		return goModChecksum, goSumChecksum, nil
+	}
+	goSumChecksum, err = fileChecksum(goSumPath)
 	if err != nil {
 		return goModChecksum, goSumChecksum, err
 	}

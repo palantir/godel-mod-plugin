@@ -1,0 +1,9 @@
+type: fix
+fix:
+  description: |-
+    Handle case where go.sum does not exist
+
+    If a module does not have any dependencies, it is valid for it
+    not to have a go.sum file.
+  links:
+  - https://github.com/palantir/godel-mod-plugin/pull/10
