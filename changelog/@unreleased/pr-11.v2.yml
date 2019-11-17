@@ -1,0 +1,9 @@
+type: fix
+fix:
+  description: |-
+    Handle case where vendor directory does not exist
+
+    If a module does not have any dependencies, it is valid for no
+    vendor directory to exist even if vendor mode is true.
+  links:
+  - https://github.com/palantir/godel-mod-plugin/pull/11
