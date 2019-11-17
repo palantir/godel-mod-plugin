@@ -1,3 +1,7 @@
+<p align="right">
+<a href="https://autorelease.general.dmz.palantir.tech/palantir/godel-mod-plugin"><img src="https://img.shields.io/badge/Perform%20an-Autorelease-success.svg" alt="Autorelease"></a>
+</p>
+
 mod-plugin
 ==========
 `mod-plugin` is a [godel](https://github.com/palantir/godel) plugin that helps to standardize and verify the Go module
