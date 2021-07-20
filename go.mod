@@ -1,6 +1,6 @@
 module github.com/palantir/godel-mod-plugin
 
-go 1.13
+go 1.16
 
 require (
 	github.com/nmiyake/pkg/dirs v1.0.1
