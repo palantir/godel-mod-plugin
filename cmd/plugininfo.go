@@ -26,7 +26,8 @@ var (
 			pluginapi.TaskInfoCommand("mod"),
 			pluginapi.TaskInfoVerifyOptions(
 				pluginapi.VerifyOptionsApplyFalseArgs("--verify"),
-				pluginapi.VerifyOptionsOrdering(intPtr(verifyorder.Format+50)),
+				// run before "license", but after most other plugins that may generate code
+				pluginapi.VerifyOptionsOrdering(intPtr(verifyorder.License-10)),
 			),
 		),
 	)
