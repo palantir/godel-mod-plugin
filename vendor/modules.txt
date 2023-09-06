@@ -71,8 +71,8 @@ github.com/nmiyake/pkg/gofiles
 # github.com/nwaples/rardecode v1.0.0
 ## explicit
 github.com/nwaples/rardecode
-# github.com/palantir/godel/v2 v2.89.0
-## explicit; go 1.20
+# github.com/palantir/godel/v2 v2.91.0
+## explicit; go 1.21
 github.com/palantir/godel/v2/framework/artifactresolver
 github.com/palantir/godel/v2/framework/builtintasks
 github.com/palantir/godel/v2/framework/builtintasks/githooks
