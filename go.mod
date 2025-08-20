@@ -1,11 +1,11 @@
 module github.com/palantir/godel-mod-plugin
 
-go 1.24.0
+go 1.25.0
 
 require (
 	github.com/nmiyake/pkg/dirs v1.1.0
 	github.com/nmiyake/pkg/gofiles v1.2.0
-	github.com/palantir/godel/v2 v2.136.0
+	github.com/palantir/godel/v2 v2.137.0
 	github.com/palantir/pkg/cobracli v1.2.0
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.9.1
