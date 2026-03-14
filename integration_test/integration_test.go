@@ -6,7 +6,7 @@ package integration_test
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path"
@@ -57,7 +57,7 @@ func TestMod(t *testing.T) {
 
 	err = os.MkdirAll(path.Join(projectDir, "godel", "config"), 0755)
 	require.NoError(t, err)
-	err = ioutil.WriteFile(path.Join(projectDir, "godel", "config", "godel.yml"), []byte(godelYML), 0644)
+	err = os.WriteFile(path.Join(projectDir, "godel", "config", "godel.yml"), []byte(godelYML), 0644)
 	require.NoError(t, err)
 
 	goModInitOutput, err := exec.Command("go", "mod", "init", "github.com/mod/test").CombinedOutput()
@@ -115,7 +115,7 @@ func TestModWithVendor(t *testing.T) {
 
 	err = os.MkdirAll(path.Join(projectDir, "godel", "config"), 0755)
 	require.NoError(t, err)
-	err = ioutil.WriteFile(path.Join(projectDir, "godel", "config", "godel.yml"), []byte(godelYML), 0644)
+	err = os.WriteFile(path.Join(projectDir, "godel", "config", "godel.yml"), []byte(godelYML), 0644)
 	require.NoError(t, err)
 
 	goModInitOutput, err := exec.Command("go", "mod", "init", "github.com/mod/test").CombinedOutput()
@@ -174,7 +174,7 @@ func TestModVerifyWithEmptySumSucceeds(t *testing.T) {
 
 	err = os.MkdirAll(path.Join(projectDir, "godel", "config"), 0755)
 	require.NoError(t, err)
-	err = ioutil.WriteFile(path.Join(projectDir, "godel", "config", "godel.yml"), []byte(godelYML), 0644)
+	err = os.WriteFile(path.Join(projectDir, "godel", "config", "godel.yml"), []byte(godelYML), 0644)
 	require.NoError(t, err)
 
 	goModInitOutput, err := exec.Command("go", "mod", "init", "github.com/mod/test").CombinedOutput()
@@ -236,7 +236,7 @@ func TestModVerifyApplyFalseFails(t *testing.T) {
 
 	err = os.MkdirAll(path.Join(projectDir, "godel", "config"), 0755)
 	require.NoError(t, err)
-	err = ioutil.WriteFile(path.Join(projectDir, "godel", "config", "godel.yml"), []byte(godelYML), 0644)
+	err = os.WriteFile(path.Join(projectDir, "godel", "config", "godel.yml"), []byte(godelYML), 0644)
 	require.NoError(t, err)
 
 	goModInitOutput, err := exec.Command("go", "mod", "init", "github.com/mod/test").CombinedOutput()
@@ -310,7 +310,7 @@ func TestModVerifyApplyFalseFailsWithVendor(t *testing.T) {
 
 	err = os.MkdirAll(path.Join(projectDir, "godel", "config"), 0755)
 	require.NoError(t, err)
-	err = ioutil.WriteFile(path.Join(projectDir, "godel", "config", "godel.yml"), []byte(godelYML), 0644)
+	err = os.WriteFile(path.Join(projectDir, "godel", "config", "godel.yml"), []byte(godelYML), 0644)
 	require.NoError(t, err)
 
 	goModInitOutput, err := exec.Command("go", "mod", "init", "github.com/mod/test").CombinedOutput()
@@ -385,7 +385,7 @@ func TestModVerifyApplyFalseWithVendorSucceedsWithNoModDependencies(t *testing.T
 
 	err = os.MkdirAll(path.Join(projectDir, "godel", "config"), 0755)
 	require.NoError(t, err)
-	err = ioutil.WriteFile(path.Join(projectDir, "godel", "config", "godel.yml"), []byte(godelYML), 0644)
+	err = os.WriteFile(path.Join(projectDir, "godel", "config", "godel.yml"), []byte(godelYML), 0644)
 	require.NoError(t, err)
 
 	goModInitOutput, err := exec.Command("go", "mod", "init", "github.com/mod/test").CombinedOutput()
