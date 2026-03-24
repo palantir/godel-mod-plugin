@@ -6,7 +6,6 @@ package integration_test
 
 import (
 	"bytes"
-	"io/fs"
 	"os"
 	"os/exec"
 	"path"
