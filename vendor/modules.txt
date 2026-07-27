@@ -99,7 +99,6 @@ github.com/palantir/godel/v2/framework/pluginapitester
 github.com/palantir/godel/v2/framework/plugins
 github.com/palantir/godel/v2/framework/verifyorder
 github.com/palantir/godel/v2/godelgetter
-github.com/palantir/godel/v2/pkg/dirchecksum
 github.com/palantir/godel/v2/pkg/osarch
 github.com/palantir/godel/v2/pkg/products
 github.com/palantir/godel/v2/pkg/versionedconfig
@@ -148,9 +147,6 @@ github.com/spf13/pflag
 github.com/stretchr/testify/assert
 github.com/stretchr/testify/assert/yaml
 github.com/stretchr/testify/require
-# github.com/termie/go-shutil v0.0.0-20140729215957-bcacb06fecae
-## explicit
-github.com/termie/go-shutil
 # github.com/ulikunitz/xz v0.5.16
 ## explicit; go 1.20
 github.com/ulikunitz/xz

@@ -11,10 +11,15 @@ The task runs `go mod tidy` to standardize all of the module dependencies for a 
 variable contains the value `-mod=vendor`, then this task will run `go mod vendor` after running `go mod tidy` to ensure
 that the `vendor` directory state reflects the latest state.
 
-The task also provides a "verify" mode that, when run, will exit with a non-0 exit code if running the core task causes
-the checksum of the `go.mod`, `go.sum` or `vendor` paths to change. However, note that running in "verify" mode will
-still modify local state. The behavior of verify mode will be improved once better first-class support for this
-operation is provided by Go (see https://github.com/golang/go/issues/27005).
+Because `go mod vendor` resets the entire `vendor` directory, the task vendors into a temporary directory and writes
+only the files that actually differ back into the project. Running the task when the project is already up-to-date
+therefore leaves the content and modification times of the `vendor` directory alone rather than rewriting every file in
+it. File modes are brought in line without content being rewritten.
+
+The task also provides a "verify" mode that, when run, will exit with a non-0 exit code if the `go.mod`, `go.sum` or
+`vendor` state is not up-to-date. Verify mode does not modify the project: it runs `go mod tidy -diff`, which reports
+the changes tidying would make without applying them, and compares the `vendor` directory against the temporary
+directory without writing to it. In both cases the differences that caused the failure are printed.
 
 Tasks
 -----
@@ -23,6 +28,5 @@ Tasks
 
 Verify
 ------
-When run as part of the `verify` task, if `apply=true`, then the `mod` task is run. If `apply=false`, the `mod` task is
-run and the verification is considered to have failed if the checksums of `go.mod`, `go.sum` or `vendor` is changed by
-the operation (note that, even if `apply=false`, the changes are applied).  
+When run as part of the `verify` task, if `apply=true`, then the `mod` task is run. If `apply=false`, the verification
+is considered to have failed if `go.mod`, `go.sum` or `vendor` is not up-to-date, and the project is left unmodified.  
