@@ -5,129 +5,67 @@
 package gomod
 
 import (
-	"crypto/sha256"
+	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"os/exec"
-	"path"
-	"reflect"
+	"path/filepath"
+	"slices"
 	"strings"
-
-	"github.com/palantir/godel/v2/pkg/dirchecksum"
-	"github.com/pkg/errors"
 )
 
 func Run(projectDir string, verify bool, stdout io.Writer) error {
-	var goModChecksumBefore, goSumChecksumBefore [32]byte
-	if verify {
-		var err error
-		goModChecksumBefore, goSumChecksumBefore, err = goModChecksums(projectDir)
-		if err != nil {
-			return err
-		}
-	}
-	if err := run(stdout, "tidy"); err != nil {
+	if err := runTidy(verify, stdout); err != nil {
 		return err
 	}
-	if verify {
-		goModChecksumAfter, goSumChecksumAfter, err := goModChecksums(projectDir)
-		if err != nil {
-			return err
-		}
-		if !reflect.DeepEqual(goModChecksumBefore, goModChecksumAfter) {
-			return errors.Errorf("go.mod modified")
-		}
-		if !reflect.DeepEqual(goSumChecksumBefore, goSumChecksumAfter) {
-			return errors.Errorf("go.sum modified")
-		}
-	}
-
 	// if vendor mode is not set, do not perform vendor operations
 	if !modVendorGoFlagsSet() {
 		return nil
 	}
+	return runVendor(projectDir, verify, stdout)
+}
 
-	vendorDirPath := path.Join(projectDir, "vendor")
-	vendorDirExistsBefore := true
-	var vendorChecksumBefore dirchecksum.ChecksumSet
+// runTidy runs "go mod tidy". Verification adds "-diff", which prints what tidying would change and exits non-zero
+// without touching go.mod or go.sum.
+func runTidy(verify bool, stdout io.Writer) error {
 	if verify {
-		if _, err := os.Stat(vendorDirPath); os.IsNotExist(err) {
-			vendorDirExistsBefore = false
-		} else {
-			var err error
-			vendorChecksumBefore, err = dirchecksum.ChecksumsForMatchingPaths(vendorDirPath, nil)
-			if err != nil {
-				return errors.Wrapf(err, "failed to compute checksums for %s", vendorDirPath)
-			}
-		}
+		return run(stdout, "tidy", "-diff")
 	}
-	if err := run(stdout, "vendor"); err != nil {
+	return run(stdout, "tidy")
+}
+
+// runVendor updates the project's vendor directory. "go mod vendor" resets the whole tree, rewriting every file whether
+// or not it changed, so it is generated into a temporary directory and only the differences are written back.
+func runVendor(projectDir string, verify bool, stdout io.Writer) error {
+	tmpDir, err := os.MkdirTemp("", "godel-mod-plugin-")
+	if err != nil {
+		return fmt.Errorf("failed to create temporary directory: %w", err)
+	}
+	defer func() {
+		_ = os.RemoveAll(tmpDir)
+	}()
+
+	// absolute because run does not set the command's working directory. "go mod vendor" removes this directory
+	// rather than creating it when there is nothing to vendor.
+	generatedDir := filepath.Join(tmpDir, "vendor")
+	if err := run(stdout, "vendor", "-o", generatedDir); err != nil {
 		return err
 	}
-	if verify {
-		vendorDirExistsAfter := true
-		if _, err := os.Stat(vendorDirPath); os.IsNotExist(err) {
-			vendorDirExistsAfter = false
-		}
 
-		if vendorDirExistsBefore != vendorDirExistsAfter {
-			if vendorDirExistsBefore {
-				return errors.Errorf("vendor directory existed before verify but did not exist after")
-			}
-			return errors.Errorf("vendor directory did not exist before verify but exists after")
-		}
-
-		// only compare checksums if vendor directory exists before and after (other case is that vendor directory
-		// didn't exist before or after, in which case they are equal)
-		if vendorDirExistsBefore && vendorDirExistsAfter {
-			vendorChecksumsAfter, err := dirchecksum.ChecksumsForMatchingPaths(vendorDirPath, nil)
-			if err != nil {
-				return errors.Wrapf(err, "failed to compute checksums for %s", vendorDirPath)
-			}
-			checksumDiff := vendorChecksumBefore.Diff(vendorChecksumsAfter)
-			if len(checksumDiff.Diffs) > 0 {
-				return errors.Errorf("vendor directory modified:\n%s", checksumDiff.String())
-			}
-		}
+	diff, err := syncDir(generatedDir, filepath.Join(projectDir, "vendor"), !verify)
+	if err != nil {
+		return err
+	}
+	if verify && !diff.empty() {
+		return fmt.Errorf("vendor directory out of date:\n%s", diff)
 	}
 	return nil
 }
 
-func goModChecksums(projectDir string) (goModChecksum, goSumChecksum [32]byte, err error) {
-	goModChecksum, err = fileChecksum(path.Join(projectDir, "go.mod"))
-	if err != nil {
-		return goModChecksum, goSumChecksum, err
-	}
-	goSumPath := path.Join(projectDir, "go.sum")
-	if _, err := os.Stat(goSumPath); os.IsNotExist(err) {
-		// if go.sum file does not exist, return default value for checksum of go.sum
-		return goModChecksum, goSumChecksum, nil
-	}
-	goSumChecksum, err = fileChecksum(goSumPath)
-	if err != nil {
-		return goModChecksum, goSumChecksum, err
-	}
-	return goModChecksum, goSumChecksum, nil
-}
-
-func fileChecksum(fpath string) ([32]byte, error) {
-	fBytes, err := ioutil.ReadFile(fpath)
-	if err != nil {
-		return [32]byte{}, errors.Wrapf(err, "failed to read %s", fpath)
-	}
-	return sha256.Sum256(fBytes), nil
-}
-
 // modVendorGoFlagsSet returns true if the GOFLAGS environment variable contains the value "-mod=vendor".
 func modVendorGoFlagsSet() bool {
-	for _, flagField := range strings.Fields(os.Getenv("GOFLAGS")) {
-		if flagField == "-mod=vendor" {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(strings.Fields(os.Getenv("GOFLAGS")), "-mod=vendor")
 }
 
 func run(stdout io.Writer, args ...string) error {
@@ -135,9 +73,10 @@ func run(stdout io.Writer, args ...string) error {
 	cmd.Stdout = stdout
 	cmd.Stderr = stdout
 	if err := cmd.Run(); err != nil {
-		if _, ok := err.(*exec.ExitError); !ok {
+		var exitError *exec.ExitError
+		if !errors.As(err, &exitError) {
 			// if error is not an exit error, wrap it
-			return errors.Wrapf(err, "failed to execute command %v", cmd.Args)
+			return fmt.Errorf("failed to execute command %v: %w", cmd.Args, err)
 		}
 		// otherwise, return empty error
 		return fmt.Errorf("")
