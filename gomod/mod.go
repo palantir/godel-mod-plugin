@@ -8,7 +8,6 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path"
@@ -113,7 +112,7 @@ func goModChecksums(projectDir string) (goModChecksum, goSumChecksum [32]byte, e
 }
 
 func fileChecksum(fpath string) ([32]byte, error) {
-	fBytes, err := ioutil.ReadFile(fpath)
+	fBytes, err := os.ReadFile(fpath)
 	if err != nil {
 		return [32]byte{}, errors.Wrapf(err, "failed to read %s", fpath)
 	}
