@@ -12,6 +12,7 @@ import (
 	"os/exec"
 	"path"
 	"reflect"
+	"slices"
 	"strings"
 
 	"github.com/palantir/godel/v2/pkg/dirchecksum"
@@ -121,12 +122,7 @@ func fileChecksum(fpath string) ([32]byte, error) {
 
 // modVendorGoFlagsSet returns true if the GOFLAGS environment variable contains the value "-mod=vendor".
 func modVendorGoFlagsSet() bool {
-	for _, flagField := range strings.Fields(os.Getenv("GOFLAGS")) {
-		if flagField == "-mod=vendor" {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(strings.Fields(os.Getenv("GOFLAGS")), "-mod=vendor")
 }
 
 func run(stdout io.Writer, args ...string) error {
