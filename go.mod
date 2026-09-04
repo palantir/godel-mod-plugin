@@ -2,6 +2,8 @@ module github.com/palantir/godel-mod-plugin
 
 go 1.27.0
 
+toolchain go1.27.1
+
 require (
 	github.com/nmiyake/pkg/dirs v1.1.0
 	github.com/nmiyake/pkg/gofiles v1.2.0
